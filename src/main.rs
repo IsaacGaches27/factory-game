@@ -1,107 +1,57 @@
-/*use crate::conveyor::Conveyor;
-use crate::item::Item;
 mod conveyor;
 mod item;
-fn main() {
-    let mut items = Vec::new();
-    let item_a = Item{ id: 0 };
-    let item_b = Item{ id: 1 };
-    let item_c = Item{ id: 2 };
-    items.push(&item_a);
-    items.push(&item_b);
-    items.push(&item_c);
-    let mut conveyors = Vec::new();
-    let conveyor_a = Conveyor{ next: None, items: [0;4], num_items: 0 };
-    let conveyor_b = Conveyor{ next: Some(0), items: [0;4], num_items: 0 };
-    let mut conveyor_c = Conveyor{ next: Some(1), items: [0;4], num_items: 0 };
-    conveyor_c.add_item(1);
-    conveyors.push(conveyor_a);
-    conveyors.push(conveyor_b);
-    conveyors.push(conveyor_c);
-    for _ in 0..3{
-        for i in 0..conveyors.len(){
-            let mut conveyor = &mut conveyors[i];
-            println!("{:?}",conveyor.items);
-            if conveyor.num_items > 0 {
-                match conveyor.next {
-                    Some(next_id) => {
-                        let item = conveyor.remove_first_item();
-                        let mut next = &mut conveyors[next_id];
-                        next.add_item(item);
-                    }
-                    None => {}
-                }
-            }
-        }
-    }
-}*/
-use crate::conveyor::Conveyor;
+mod container;
+
+use bevy::prelude::*;
+use crate::container::ItemContainer;
+use crate::conveyor::{ConveyorLogic, ConveyorPlugin, TailConveyor};
 use crate::item::Item;
-mod conveyor;
-mod item;
-use ggegui::{egui, Gui};
-use ggez::{
-    ContextBuilder, Context, GameResult, glam,
-    event::{ self, EventHandler},
-    graphics::{ self, DrawParam, Color }
-};
+
 fn main() {
-    let (mut ctx, event_loop) = ContextBuilder::new("game_id", "author").build().unwrap();
-    let state = State::new(&mut ctx);
-    event::run(ctx, event_loop, state);
+    App::new()
+        .add_plugins(DefaultPlugins)
+        .add_plugins(ConveyorPlugin())
+        .add_systems(Startup, setup)
+        .run();
 }
-struct State {
-    gui: Gui,
-    conveyors: Vec<Conveyor>,
-    items: Vec<Item>,
+
+#[derive(Component)]
+enum Direction {
+    Up,
+    Down,
 }
-impl State {
-    pub fn new(ctx: &mut Context) -> Self {
-        let mut items = Vec::new();
-        let item_a = Item{ id: 0 };
-        let item_b = Item{ id: 1 };
-        let item_c = Item{ id: 2 };
-        items.push(item_a);
-        items.push(item_b);
-        items.push(item_c);
-        let mut conveyors = Vec::new();
-        let conveyor_a = Conveyor{ next: None, items: [0;4], num_items: 0 };
-        let conveyor_b = Conveyor{ next: Some(0), items: [0;4], num_items: 0 };
-        let mut conveyor_c = Conveyor{ next: Some(1), items: [0;4], num_items: 0 };
-        conveyor_c.add_item(1);
-        conveyors.push(conveyor_a);
-        conveyors.push(conveyor_b);
-        conveyors.push(conveyor_c);
-        Self {
-            gui: Gui::new(ctx),
-            conveyors,
-            items,
-        }
-    }
-}
-impl EventHandler for State {
-    fn update(&mut self, ctx: &mut Context) -> GameResult {
 
-        let gui_ctx = self.gui.ctx();
+fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
+    commands.spawn(Camera2dBundle::default());
 
-        egui::Window::new("Title").show(&gui_ctx, |ui| {
-            ui.label("label");
-            if ui.button("button").clicked() {
-                println!("button clicked");
-            }
-        });
+    let item = commands.spawn((
+        SpriteBundle {
+            texture: asset_server.load("grass.png"),
+            transform: Transform::from_xyz(50., 0., 0.).with_scale(Vec3::splat(0.5)),
+            ..default()
+        },
+        Direction::Up,
+    )).insert(Item::default()).id();
 
-        self.gui.update(ctx);
-        Ok(())
-    }
+    let mut item_container = ItemContainer::default();
+    item_container.add_item(item);
+    item_container.set_block(true);
 
-    fn draw(&mut self, ctx: &mut Context) -> GameResult {
-        let mut canvas = graphics::Canvas::from_frame(ctx, Color::from_rgb(120,120,120));
-        canvas.draw(
-            &self.gui,
-            DrawParam::default().dest(glam::Vec2::ZERO),
-        );
+    let conveyor = commands.spawn((
+        SpriteBundle {
+            texture: asset_server.load("grass.png"),
+            transform: Transform::from_xyz(100., 0., 0.),
+            ..default()
+        },
+        Direction::Up,
+    )).insert((ConveyorLogic { incoming: None,timer: 60 },item_container)).id();
 
-        canvas.finish(ctx)
-    }
+    commands.spawn((
+        SpriteBundle {
+            texture: asset_server.load("grass.png"),
+            transform: Transform::from_xyz(200., 0., 0.),
+            ..default()
+        },
+        Direction::Up,
+    )).insert((ConveyorLogic { incoming: Some(conveyor),timer: 0 },ItemContainer::default(),TailConveyor()));
 }

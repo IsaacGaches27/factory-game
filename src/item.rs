@@ -1,3 +1,6 @@
+use bevy::prelude::*;
+
+#[derive(Component,Default)]
 pub struct Item{
-    pub id: usize,
+    id: usize,
 }
