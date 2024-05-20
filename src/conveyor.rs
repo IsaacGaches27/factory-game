@@ -48,13 +48,12 @@ fn update_conveyor(
 
             let (mut conveyor,mut container,position) = conveyors.get_mut(current).unwrap();
 
-            item_pos.translation = position.translation;
+            item_pos.translation = Vec3::new(position.translation.x,position.translation.y,item_pos.translation.z);
             conveyor.timer = 60;
             container.add_item(item);
             container.set_block(true);
         }
     }
-
 
     Some(incoming)
 }

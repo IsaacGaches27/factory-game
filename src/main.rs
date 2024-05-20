@@ -9,16 +9,10 @@ use crate::item::Item;
 
 fn main() {
     App::new()
-        .add_plugins(DefaultPlugins)
+        .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
         .add_plugins(ConveyorPlugin())
         .add_systems(Startup, setup)
         .run();
-}
-
-#[derive(Component)]
-enum Direction {
-    Up,
-    Down,
 }
 
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
@@ -27,10 +21,9 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     let item = commands.spawn((
         SpriteBundle {
             texture: asset_server.load("grass.png"),
-            transform: Transform::from_xyz(50., 0., 0.).with_scale(Vec3::splat(0.5)),
+            transform: Transform::from_xyz(0., 0., 10.).with_scale(Vec3::splat(0.4)),
             ..default()
-        },
-        Direction::Up,
+        }
     )).insert(Item::default()).id();
 
     let mut item_container = ItemContainer::default();
@@ -39,19 +32,43 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
 
     let conveyor = commands.spawn((
         SpriteBundle {
-            texture: asset_server.load("grass.png"),
-            transform: Transform::from_xyz(100., 0., 0.),
+            texture: asset_server.load("conveyor.png"),
+            transform: Transform::from_xyz(0., 0., 0.),
             ..default()
         },
-        Direction::Up,
-    )).insert((ConveyorLogic { incoming: None,timer: 60 },item_container)).id();
+        ConveyorLogic { incoming: None,timer: 0 },
+        item_container
+    )).id();
+
+    let item = commands.spawn((
+        SpriteBundle {
+            texture: asset_server.load("grass.png"),
+            transform: Transform::from_xyz(15., 0., 10.).with_scale(Vec3::splat(0.4)),
+            ..default()
+        }
+    )).insert(Item::default()).id();
+
+    let mut item_container = ItemContainer::default();
+    item_container.add_item(item);
+
+    let conveyor = commands.spawn((
+        SpriteBundle {
+            texture: asset_server.load("conveyor.png"),
+            transform: Transform::from_xyz(15., 0., 0.),
+            ..default()
+        },
+        ConveyorLogic { incoming: Some(conveyor),timer: 0 },
+        item_container,
+    )).id();
 
     commands.spawn((
         SpriteBundle {
-            texture: asset_server.load("grass.png"),
-            transform: Transform::from_xyz(200., 0., 0.),
+            texture: asset_server.load("conveyor.png"),
+            transform: Transform::from_xyz(30., 0., 0.),
             ..default()
         },
-        Direction::Up,
-    )).insert((ConveyorLogic { incoming: Some(conveyor),timer: 0 },ItemContainer::default(),TailConveyor()));
+        ConveyorLogic { incoming: Some(conveyor),timer: 0 },
+        ItemContainer::default(),
+        TailConveyor()
+    ));
 }
