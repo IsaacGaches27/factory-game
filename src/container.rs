@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-use crate::item::Item;
 
 #[derive(Component,Default)]
 pub struct ItemContainer{

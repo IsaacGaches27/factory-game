@@ -26,19 +26,15 @@ fn update_conveyors(
 
 fn update_conveyor(
     current: Entity,
-    mut conveyors: &mut Query<(&mut ConveyorLogic, &mut ItemContainer, &Transform),Without<Item>>,
-    mut items: &mut Query<&mut Transform,With<Item>>,
+    conveyors: &mut Query<(&mut ConveyorLogic, &mut ItemContainer, &Transform),Without<Item>>,
+    items: &mut Query<&mut Transform,With<Item>>,
 ) -> Option<Entity>{
     let (mut conveyor,mut container,_) = conveyors.get_mut(current).unwrap();
 
     conveyor.timer = conveyor.timer.saturating_sub(1);
     container.set_block(conveyor.timer > 0);
 
-    let incoming = if let Some(incoming) = conveyor.incoming {
-        incoming
-    } else {
-        return None
-    };
+    let incoming = conveyor.incoming?;
 
     if container.empty(){
         let (_,mut in_container,_) = conveyors.get_mut(incoming).unwrap();
