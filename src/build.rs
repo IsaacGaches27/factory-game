@@ -1,9 +1,11 @@
+use bevy::asset::AssetContainer;
 use bevy::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
 use crate::world::Terrain;
 use bevy::window::PrimaryWindow;
 use crate::container::ItemContainer;
-use crate::conveyor::ConveyorLogic;
+use crate::conveyor::{ConveyorLogic, TailConveyor};
+use crate::producer::Producer;
 
 fn place_conveyors(
     buttons: Res<Input<MouseButton>>,
@@ -11,6 +13,7 @@ fn place_conveyors(
     camera_query: Query<(&Camera, &GlobalTransform)>,
     mut tilemap_query: Query<(&mut TileStorage,Entity),Without<Terrain>>,
     mut commands: Commands,
+    mut tails: Query<&TailConveyor>,
 ) {
     if buttons.just_pressed(MouseButton::Left) {
         let (camera, camera_transform) = camera_query.single();
@@ -25,11 +28,16 @@ fn place_conveyors(
 
             let mut conveyor_logic = ConveyorLogic::default();
 
-            for x in 0..3{
+
+            'outer: for x in 0..3{
                 for y in 0..3{
                     if let Some(adj) = tilemap.get(&TilePos{x:tile_pos.x + x - 1,y:tile_pos.y + y - 1}){
-                        if x == 1 && y == 1 {return;}
+                        if x == 1 && y == 1 {return}
+                        if tails.contains(adj){
+                            commands.entity(adj).remove::<TailConveyor>();
+                        }
                         conveyor_logic.incoming = Some(adj);
+                        break 'outer;
                     }
                 }
             }
@@ -40,7 +48,7 @@ fn place_conveyors(
                     tilemap_id: TilemapId(tilemap_entity),
                     ..Default::default()
                 })
-                .insert((conveyor_logic,ItemContainer::default()))
+                .insert((conveyor_logic,ItemContainer::default(),TailConveyor(),Producer{}))
                 .id();
 
             tilemap.set(&tile_pos,tile_entity);
@@ -48,7 +56,7 @@ fn place_conveyors(
     }
 }
 
-pub struct BuildPlugin();
+pub struct BuildPlugin;
 
 impl Plugin for BuildPlugin{
     fn build(&self, app: &mut App) {

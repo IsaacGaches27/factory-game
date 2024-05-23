@@ -50,7 +50,7 @@ fn spawn_tilemap(
 #[derive(Component)]
 pub struct Terrain();
 
-pub struct WorldPlugin();
+pub struct WorldPlugin;
 
 impl Plugin for WorldPlugin{
     fn build(&self, app: &mut App) {

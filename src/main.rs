@@ -3,11 +3,13 @@ mod container;
 mod item;
 mod build;
 mod world;
+mod producer;
 
 use bevy::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
 use crate::build::BuildPlugin;
 use crate::conveyor::ConveyorPlugin;
+use crate::producer::ProducerPlugin;
 use crate::world::WorldPlugin;
 
 fn startup(
@@ -27,10 +29,11 @@ fn main() {
             }),
             ..default()
         }).set(ImagePlugin::default_nearest()))
-        .add_plugins(BuildPlugin())
-        .add_plugins(WorldPlugin())
-        .add_plugins(ConveyorPlugin())
+        .add_plugins(BuildPlugin)
+        .add_plugins(WorldPlugin)
+        .add_plugins(ConveyorPlugin)
         .add_plugins(TilemapPlugin)
+        .add_plugins(ProducerPlugin)
         .add_systems(Startup, startup)
         .run();
 }

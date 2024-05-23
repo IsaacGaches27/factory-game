@@ -19,7 +19,9 @@ impl ItemContainer{
         self.item.is_none()
     }
     pub fn add_item(&mut self, item: Entity){
-        self.item = Some(item);
+        if !self.blocked && self.item.is_none(){
+            self.item = Some(item);
+        }
     }
     pub fn set_block(&mut self, block: bool){
         self.blocked = block;
