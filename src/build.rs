@@ -15,7 +15,7 @@ fn place_conveyors(
     mut commands: Commands,
     mut tails: Query<&TailConveyor>,
 ) {
-    if buttons.just_pressed(MouseButton::Left) {
+    if buttons.pressed(MouseButton::Left) || buttons.pressed(MouseButton::Right) {
         let (camera, camera_transform) = camera_query.single();
         let window = window_query.single();
 
@@ -26,13 +26,16 @@ fn place_conveyors(
             let (mut tilemap,tilemap_entity) = tilemap_query.single_mut();
             let tile_pos = TilePos{x: ((world_position.x + 7.5)/15.0) as u32,y: ((world_position.y + 7.5)/15.0) as u32};
 
-            let mut conveyor_logic = ConveyorLogic::default();
+            if tilemap.get(&tile_pos).is_some(){
+                return;
+            }
 
+            let mut conveyor_logic = ConveyorLogic::default();
 
             'outer: for x in 0..3{
                 for y in 0..3{
+                    if (x+y) % 2 == 0 {continue;}
                     if let Some(adj) = tilemap.get(&TilePos{x:tile_pos.x + x - 1,y:tile_pos.y + y - 1}){
-                        if x == 1 && y == 1 {return}
                         if tails.contains(adj){
                             commands.entity(adj).remove::<TailConveyor>();
                         }
@@ -48,8 +51,12 @@ fn place_conveyors(
                     tilemap_id: TilemapId(tilemap_entity),
                     ..Default::default()
                 })
-                .insert((conveyor_logic,ItemContainer::default(),TailConveyor(),Producer{}))
+                .insert((conveyor_logic,ItemContainer::default(),TailConveyor()))
                 .id();
+
+            if buttons.pressed(MouseButton::Right){
+                commands.entity(tile_entity).insert(Producer{});
+            }
 
             tilemap.set(&tile_pos,tile_entity);
         }

@@ -5,7 +5,7 @@ fn spawn_tilemap(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
 ) {
-    let map_size = TilemapSize { x: 32, y: 32 };
+    let map_size = TilemapSize { x: 100, y: 100 };
 
     let mut tile_storage = TileStorage::empty(map_size);
     let tilemap_entity = commands.spawn_empty().id();

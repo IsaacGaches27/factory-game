@@ -6,6 +6,8 @@ mod world;
 mod producer;
 
 use bevy::prelude::*;
+use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
+use bevy::diagnostic::LogDiagnosticsPlugin;
 use bevy_ecs_tilemap::prelude::*;
 use crate::build::BuildPlugin;
 use crate::conveyor::ConveyorPlugin;
@@ -29,6 +31,8 @@ fn main() {
             }),
             ..default()
         }).set(ImagePlugin::default_nearest()))
+        .add_plugins(FrameTimeDiagnosticsPlugin::default())
+        .add_plugins(LogDiagnosticsPlugin::default())
         .add_plugins(BuildPlugin)
         .add_plugins(WorldPlugin)
         .add_plugins(ConveyorPlugin)
