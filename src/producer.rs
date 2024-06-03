@@ -17,15 +17,17 @@ fn update_producers(
     asset_server: Res<AssetServer>,
 ){
     for (mut container,mut producer) in &mut producers{
-        let item = commands.spawn((
-            SpriteBundle{
-                texture: asset_server.load("items.png"),
-                transform: Transform::from_xyz(0.,0.,10.),
-                ..default()
-            }
-        )).insert(Item::default()).id();
+        if container.empty(){
+            let item = commands.spawn((
+                SpriteBundle{
+                    texture: asset_server.load("items.png"),
+                    transform: Transform::from_xyz(0.,0.,10.),
+                    ..default()
+                }
+            )).insert(Item::default()).id();
 
-        container.add_item(item);
+            container.add_item(item);
+        }
     }
 }
 

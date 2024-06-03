@@ -32,15 +32,15 @@ fn place_conveyors(
 
             let mut conveyor_logic = ConveyorLogic::default();
 
-            'outer: for x in 0..3{
+            'looop: for x in 0..3{
                 for y in 0..3{
                     if (x+y) % 2 == 0 {continue;}
                     if let Some(adj) = tilemap.get(&TilePos{x:tile_pos.x + x - 1,y:tile_pos.y + y - 1}){
                         if tails.contains(adj){
                             commands.entity(adj).remove::<TailConveyor>();
+                            conveyor_logic.incoming = Some(adj);
+                            break 'looop;
                         }
-                        conveyor_logic.incoming = Some(adj);
-                        break 'outer;
                     }
                 }
             }
