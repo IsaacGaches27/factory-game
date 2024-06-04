@@ -2,7 +2,7 @@ mod conveyor;
 mod container;
 mod item;
 mod build;
-mod world;
+mod terrain;
 mod producer;
 
 use bevy::prelude::*;
@@ -12,7 +12,7 @@ use bevy_ecs_tilemap::prelude::*;
 use crate::build::BuildPlugin;
 use crate::conveyor::ConveyorPlugin;
 use crate::producer::ProducerPlugin;
-use crate::world::WorldPlugin;
+use crate::terrain::WorldPlugin;
 
 fn startup(
     mut commands: Commands,

@@ -8,7 +8,7 @@ use crate::item::Item;
 
 #[derive(Component)]
 pub struct Producer{
-
+    pub timer: u16,
 }
 
 fn update_producers(
@@ -17,7 +17,9 @@ fn update_producers(
     asset_server: Res<AssetServer>,
 ){
     for (mut container,mut producer) in &mut producers{
-        if container.empty(){
+        producer.timer += 1;
+        if producer.timer > 120 && container.empty(){
+            producer.timer = 0;
             let item = commands.spawn((
                 SpriteBundle{
                     texture: asset_server.load("items.png"),

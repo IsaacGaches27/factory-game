@@ -1,7 +1,7 @@
 use bevy::asset::AssetContainer;
 use bevy::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
-use crate::world::Terrain;
+use crate::terrain::Terrain;
 use bevy::window::PrimaryWindow;
 use crate::container::ItemContainer;
 use crate::conveyor::{ConveyorLogic, TailConveyor};
@@ -31,31 +31,42 @@ fn place_conveyors(
             }
 
             let mut conveyor_logic = ConveyorLogic::default();
+            let mut direction = (0,0);
 
-            'looop: for x in 0..3{
+            'outer: for x in 0..3{
                 for y in 0..3{
                     if (x+y) % 2 == 0 {continue;}
                     if let Some(adj) = tilemap.get(&TilePos{x:tile_pos.x + x - 1,y:tile_pos.y + y - 1}){
                         if tails.contains(adj){
                             commands.entity(adj).remove::<TailConveyor>();
                             conveyor_logic.incoming = Some(adj);
-                            break 'looop;
+                            direction = (x,y);
+                            break 'outer;
                         }
                     }
                 }
             }
 
+            let index = match direction{
+                (0,1) => 2,
+                (2,1) => 3,
+                (1,0) => 0,
+                (1,2) => 1,
+                _ => 0,
+            };
+
             let tile_entity = commands
                 .spawn(TileBundle {
                     position: tile_pos,
                     tilemap_id: TilemapId(tilemap_entity),
+                    texture_index: TileTextureIndex(index),
                     ..Default::default()
                 })
                 .insert((conveyor_logic,ItemContainer::default(),TailConveyor()))
                 .id();
 
             if buttons.pressed(MouseButton::Right){
-                commands.entity(tile_entity).insert(Producer{});
+                commands.entity(tile_entity).insert(Producer{ timer: 0});
             }
 
             tilemap.set(&tile_pos,tile_entity);

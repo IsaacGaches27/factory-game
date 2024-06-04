@@ -32,8 +32,8 @@ fn update_conveyor(
 ) -> Option<Entity>{
     let (mut conveyor,mut container,_) = conveyors.get_mut(current).unwrap();
 
-    conveyor.timer = conveyor.timer.saturating_sub(1);
-    container.set_block(conveyor.timer > 0);
+    conveyor.timer += 1;
+    container.set_block(conveyor.timer < 20);
 
     let incoming = conveyor.incoming?;
 
@@ -46,7 +46,7 @@ fn update_conveyor(
             let (mut conveyor,mut container,position) = conveyors.get_mut(current).unwrap();
 
             item_pos.translation = Vec3::new(position.x as f32 * 15.,position.y as f32 * 15.,item_pos.translation.z);
-            conveyor.timer = 60;
+            conveyor.timer = 0;
             container.add_item(item);
             container.set_block(true);
         }
