@@ -4,21 +4,18 @@ mod item;
 mod build;
 mod terrain;
 mod producer;
+mod camera;
 
 use bevy::prelude::*;
 use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
 use bevy::diagnostic::LogDiagnosticsPlugin;
 use bevy_ecs_tilemap::prelude::*;
 use crate::build::BuildPlugin;
+use crate::camera::CameraPlugin;
 use crate::conveyor::ConveyorPlugin;
 use crate::producer::ProducerPlugin;
 use crate::terrain::WorldPlugin;
 
-fn startup(
-    mut commands: Commands,
-) {
-    commands.spawn(Camera2dBundle::default());
-}
 
 fn main() {
     App::new()
@@ -38,6 +35,6 @@ fn main() {
         .add_plugins(ConveyorPlugin)
         .add_plugins(TilemapPlugin)
         .add_plugins(ProducerPlugin)
-        .add_systems(Startup, startup)
+        .add_plugins(CameraPlugin)
         .run();
 }

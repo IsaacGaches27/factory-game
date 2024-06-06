@@ -37,6 +37,6 @@ pub struct ProducerPlugin;
 
 impl Plugin for ProducerPlugin{
     fn build(&self, app: &mut App) {
-        app.add_systems(Update,update_producers);
+        app.add_systems(Update,update_producers.after(crate::conveyor::update_conveyors));
     }
 }

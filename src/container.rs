@@ -15,6 +15,9 @@ impl ItemContainer{
             self.item.take()
         }
     }
+    pub fn blocked(&self) -> bool{
+        self.blocked
+    }
     pub fn empty(&self) -> bool{
         self.item.is_none()
     }

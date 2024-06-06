@@ -12,7 +12,7 @@ pub struct ConveyorLogic{
 #[derive(Component)]
 pub struct TailConveyor();
 
-fn update_conveyors(
+pub fn update_conveyors(
     tail_conveyors: Query<Entity,With<TailConveyor>>,
     mut conveyors: Query<(&mut ConveyorLogic, &mut ItemContainer, &TilePos),Without<Item>>,
     mut items: Query<&mut Transform,With<Item>>,
@@ -37,7 +37,7 @@ fn update_conveyor(
 
     let incoming = conveyor.incoming?;
 
-    if container.empty(){
+    if container.empty() && !container.blocked(){
         let (_,mut in_container,_) = conveyors.get_mut(incoming).unwrap();
 
         if let Some(item) = in_container.take(){
