@@ -12,6 +12,8 @@ fn place_conveyors(
     window_query: Query<&Window, With<PrimaryWindow>>,
     camera_query: Query<(&Camera, &GlobalTransform)>,
     mut tilemap_query: Query<(&mut TileStorage,Entity),Without<Terrain>>,
+    terrain: Query<(&TileStorage),With<Terrain>>,
+    tiles: Query<&TileTextureIndex>,
     mut commands: Commands,
     mut tails: Query<&TailConveyor>,
 ) {
@@ -54,20 +56,28 @@ fn place_conveyors(
                 (1,2) => 1,
                 _ => 0,
             };
-
-            let tile_entity = commands
-                .spawn(TileBundle {
-                    position: tile_pos,
-                    tilemap_id: TilemapId(tilemap_entity),
-                    texture_index: TileTextureIndex(index),
-                    ..Default::default()
-                })
-                .insert((conveyor_logic,ItemContainer::default(),TailConveyor()))
-                .id();
-
-            if buttons.pressed(MouseButton::Right){
-                commands.entity(tile_entity).insert(Producer{ timer: 0});
+            let tile_entity = if buttons.pressed(MouseButton::Right) && tiles.get(terrain.single().get(&tile_pos).unwrap()).unwrap().0 == 3{
+                commands
+                    .spawn(TileBundle {
+                        position: tile_pos,
+                        tilemap_id: TilemapId(tilemap_entity),
+                        texture_index: TileTextureIndex(16),
+                        ..Default::default()
+                    })
+                    .insert((conveyor_logic,ItemContainer::default(),TailConveyor(),Producer{ timer: 0 }))
+                    .id()
             }
+            else{
+                commands
+                    .spawn(TileBundle {
+                        position: tile_pos,
+                        tilemap_id: TilemapId(tilemap_entity),
+                        texture_index: TileTextureIndex(index),
+                        ..Default::default()
+                    })
+                    .insert((conveyor_logic,ItemContainer::default(),TailConveyor()))
+                    .id()
+            };
 
             tilemap.set(&tile_pos,tile_entity);
         }
