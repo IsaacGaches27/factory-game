@@ -8,19 +8,39 @@ fn spawn_tilemap(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
 ) {
-    let map_size = TilemapSize { x: 100, y: 100 };
+    let size = 1000;
+
+    let map_size = TilemapSize { x: size, y: size };
 
     let mut tile_storage = TileStorage::empty(map_size);
     let tilemap_entity = commands.spawn_empty().id();
 
-    let noise = NoiseBuilder::fbm_2d(100, 100).with_freq(0.1).generate_scaled(0.0, 1.0);
+    let noise_1 = NoiseBuilder::fbm_2d(size as usize, size as usize).with_seed(1337).with_freq(0.1).generate_scaled(0.0, 1.0);
+    let noise_2 = NoiseBuilder::fbm_2d(size as usize, size as usize).with_seed(0).with_freq(0.05).generate_scaled(0.0, 1.0);
+    let noise_3 = NoiseBuilder::fbm_2d(size as usize, size as usize).with_seed(2092).with_freq(0.02).generate_scaled(0.0, 1.0);
 
-    for x in 0..100{
-        for y in 0..100{
-            let tile_index =
-                if noise[(x*100+y) as usize] > 0.5 {2}
-                else if noise[(x*100+y) as usize] > 0.2 {0}
-                else {3};
+    for x in 0..size{
+        for y in 0..size{
+            let tile_index = if ((x as f32-200.)*(x as f32-200.) + (y as f32-700.)*(y as f32-700.)).sqrt() < noise_3[(x*size+y) as usize] * 400.{ // stone biome
+                if noise_1[(x*size+y) as usize] < 0.1 {7} // iron
+                else if noise_2[(x*size+y) as usize] < 0.05 {5} // coal
+                else if noise_1[(x*size+y) as usize] < 0.8  {2} // stone
+                else if noise_2[(x*size+y) as usize] < 0.2 {0} // grass
+                else {1} //dirt
+            }
+            else if ((x as f32-800.)*(x as f32-800.) + (y as f32-200.)*(y as f32-200.)).sqrt() < noise_3[(x*size+y) as usize] * 400.{ // desert biome
+                if noise_1[(x*size+y) as usize] < 0.02 {7} // iron
+                else if noise_2[(x*size+y) as usize] < 0.1 {5} // coal
+                else if noise_1[(x*size+y) as usize] < 0.1  {2} // stone
+                else {3} //sand
+            }
+            else{
+                if noise_1[(x*size+y) as usize] < 0.05 {7} // iron
+                else if noise_2[(x*size+y) as usize] < 0.08 {5} // coal
+                else if noise_1[(x*size+y) as usize] < 0.1 {2} // stone
+                else if noise_2[(x*size+y) as usize] < 0.7 {0} // grass
+                else {1} //dirt
+            };
 
             let tile_pos = TilePos {x, y};
             let tile_entity = commands

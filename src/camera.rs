@@ -1,17 +1,24 @@
 use bevy::prelude::*;
-fn camera_controller(keys: Res<Input<KeyCode>>,mut camera_query: Query<&mut Transform,With<Camera>>){
-    let mut camera = camera_query.single_mut();
+fn camera_controller(keys: Res<Input<KeyCode>>,mut camera_query: Query<(&mut Transform,&mut OrthographicProjection)>){
+    let (mut transform,mut camera) = camera_query.single_mut();
     if keys.pressed(KeyCode::W) {
-        camera.translation = Vec3::new(camera.translation.x,camera.translation.y + 5.,0.);
+        transform.translation = Vec3::new(transform.translation.x,transform.translation.y + 20.,0.);
     }
     if keys.pressed(KeyCode::A) {
-        camera.translation = Vec3::new(camera.translation.x - 5.,camera.translation.y,0.);
+        transform.translation = Vec3::new(transform.translation.x - 20.,transform.translation.y,0.);
     }
     if keys.pressed(KeyCode::S) {
-        camera.translation = Vec3::new(camera.translation.x,camera.translation.y - 5.,0.);
+        transform.translation = Vec3::new(transform.translation.x,transform.translation.y - 20.,0.);
     }
     if keys.pressed(KeyCode::D) {
-        camera.translation = Vec3::new(camera.translation.x + 5.,camera.translation.y,0.);
+        transform.translation = Vec3::new(transform.translation.x + 20.,transform.translation.y,0.);
+    }
+
+    if keys.pressed(KeyCode::Equals) {
+        camera.scale -= 0.05;
+    }
+    if keys.pressed(KeyCode::Minus) {
+        camera.scale += 0.05;
     }
 }
 fn add_camera(

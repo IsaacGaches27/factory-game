@@ -32,7 +32,7 @@ fn update_conveyor(
 ) -> Option<Entity>{
     let (mut conveyor,mut container,_) = conveyors.get_mut(current).unwrap();
 
-    conveyor.timer += 1;
+    if conveyor.timer <= 20 { conveyor.timer += 1; }
     container.set_block(conveyor.timer < 20);
 
     let incoming = conveyor.incoming?;

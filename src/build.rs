@@ -56,7 +56,7 @@ fn place_conveyors(
                 (1,2) => 1,
                 _ => 0,
             };
-            let tile_entity = if buttons.pressed(MouseButton::Right) && tiles.get(terrain.single().get(&tile_pos).unwrap()).unwrap().0 == 3{
+            let tile_entity = if buttons.pressed(MouseButton::Right) && tiles.get(terrain.single().get(&tile_pos).unwrap()).unwrap().0 == 7{
                 commands
                     .spawn(TileBundle {
                         position: tile_pos,
