@@ -17,7 +17,6 @@ fn update_producers(
     asset_server: Res<AssetServer>,
 ){
     for (mut container,mut producer) in &mut producers{
-        producer.timer += 1;
         if producer.timer > 120 && container.empty(){
             producer.timer = 0;
             let item = commands.spawn((
@@ -29,6 +28,9 @@ fn update_producers(
             )).insert(Item::default()).id();
 
             container.add_item(item);
+        }
+        else{
+            producer.timer += 1;
         }
     }
 }
