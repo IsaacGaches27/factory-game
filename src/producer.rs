@@ -1,9 +1,6 @@
-use std::process::Command;
+
 use bevy::prelude::*;
-use bevy::prelude::KeyCode::Up;
-use bevy_ecs_tilemap::prelude::TilePos;
 use crate::container::ItemContainer;
-use crate::conveyor::ConveyorLogic;
 use crate::item::Item;
 
 #[derive(Component)]
@@ -15,13 +12,23 @@ fn update_producers(
     mut commands: Commands,
     mut producers: Query<(&mut ItemContainer, &mut Producer)>,
     asset_server: Res<AssetServer>,
+    mut texture_atlas_layouts: ResMut<Assets<TextureAtlas>>,
 ){
     for (mut container,mut producer) in &mut producers{
         if producer.timer > 120 && container.empty(){
             producer.timer = 0;
+
+            let texture = asset_server.load("items.png");
+            let layout = TextureAtlas::from_grid(texture, Vec2::new(15.,15.), 2, 1, None, Some(Vec2::new(2.,2.)));
+            let texture_atlas = texture_atlas_layouts.add(layout);
+
             let item = commands.spawn((
-                SpriteBundle{
-                    texture: asset_server.load("items.png"),
+                SpriteSheetBundle{
+                    texture_atlas,
+                    sprite: TextureAtlasSprite{
+                        index: 0,
+                        ..default()
+                    },
                     transform: Transform::from_xyz(0.,0.,10.),
                     ..default()
                 }

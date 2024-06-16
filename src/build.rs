@@ -6,6 +6,7 @@ use bevy::window::PrimaryWindow;
 use crate::container::ItemContainer;
 use crate::conveyor::{ConveyorLogic, TailConveyor};
 use crate::producer::Producer;
+use crate::storage::ItemStorage;
 
 fn place_conveyors(
     buttons: Res<Input<MouseButton>>,
@@ -56,16 +57,30 @@ fn place_conveyors(
                 (1,2) => 1,
                 _ => 0,
             };
-            let tile_entity = if buttons.pressed(MouseButton::Right) && tiles.get(terrain.single().get(&tile_pos).unwrap()).unwrap().0 == 7{
-                commands
-                    .spawn(TileBundle {
-                        position: tile_pos,
-                        tilemap_id: TilemapId(tilemap_entity),
-                        texture_index: TileTextureIndex(16),
-                        ..Default::default()
-                    })
-                    .insert((conveyor_logic,ItemContainer::default(),TailConveyor(),Producer{ timer: 0 }))
-                    .id()
+
+            let tile_entity = if buttons.pressed(MouseButton::Right) {
+                if tiles.get(terrain.single().get(&tile_pos).unwrap()).unwrap().0 == 7{
+                    commands
+                        .spawn(TileBundle {
+                            position: tile_pos,
+                            tilemap_id: TilemapId(tilemap_entity),
+                            texture_index: TileTextureIndex(16),
+                            ..Default::default()
+                        })
+                        .insert((ItemStorage{item_id: 0, items: Vec::new()},ItemContainer::default(),Producer{ timer: 0 }))
+                        .id()
+                }
+                else{
+                    commands
+                        .spawn(TileBundle {
+                            position: tile_pos,
+                            tilemap_id: TilemapId(tilemap_entity),
+                            texture_index: TileTextureIndex(17),
+                            ..Default::default()
+                        })
+                        .insert((conveyor_logic,ItemContainer::default(),TailConveyor()))
+                        .id()
+                }
             }
             else{
                 commands
