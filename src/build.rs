@@ -6,7 +6,6 @@ use bevy::window::PrimaryWindow;
 use crate::container::ItemContainer;
 use crate::conveyor::{ConveyorLogic, TailConveyor};
 use crate::producer::Producer;
-use crate::storage::ItemStorage;
 
 fn place_conveyors(
     buttons: Res<Input<MouseButton>>,
@@ -67,7 +66,7 @@ fn place_conveyors(
                             texture_index: TileTextureIndex(16),
                             ..Default::default()
                         })
-                        .insert((ItemStorage{item_id: 0, items: Vec::new()},ItemContainer::default(),Producer{ timer: 0 }))
+                        .insert((ItemContainer::new(10),Producer{ timer: 0 },conveyor_logic,TailConveyor()))
                         .id()
                 }
                 else{
@@ -78,7 +77,7 @@ fn place_conveyors(
                             texture_index: TileTextureIndex(17),
                             ..Default::default()
                         })
-                        .insert((conveyor_logic,ItemContainer::default(),TailConveyor()))
+                        .insert((conveyor_logic,ItemContainer::new(10),TailConveyor()))
                         .id()
                 }
             }
@@ -90,7 +89,7 @@ fn place_conveyors(
                         texture_index: TileTextureIndex(index),
                         ..Default::default()
                     })
-                    .insert((conveyor_logic,ItemContainer::default(),TailConveyor()))
+                    .insert((conveyor_logic,ItemContainer::new(1),TailConveyor()))
                     .id()
             };
 
