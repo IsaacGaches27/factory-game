@@ -15,26 +15,28 @@ fn update_producers(
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlas>>,
 ){
     for (mut container,mut producer) in &mut producers{
-        if producer.timer > 120 && container.empty(){
-            producer.timer = 0;
+        if producer.timer > 120{
+            if !container.full() {
+                producer.timer = 0;
 
-            let texture = asset_server.load("items.png");
-            let layout = TextureAtlas::from_grid(texture, Vec2::new(15.,15.), 2, 1, None, Some(Vec2::new(2.,2.)));
-            let texture_atlas = texture_atlas_layouts.add(layout);
+                let texture = asset_server.load("items.png");
+                let layout = TextureAtlas::from_grid(texture, Vec2::new(15., 15.), 5, 2, None, Some(Vec2::new(2., 2.)));
+                let texture_atlas = texture_atlas_layouts.add(layout);
 
-            let item = commands.spawn((
-                SpriteSheetBundle{
-                    texture_atlas,
-                    sprite: TextureAtlasSprite{
-                        index: 0,
+                let item = commands.spawn((
+                    SpriteSheetBundle {
+                        texture_atlas,
+                        sprite: TextureAtlasSprite {
+                            index: 1,
+                            ..default()
+                        },
+                        transform: Transform::from_xyz(0., 0., 10.),
                         ..default()
-                    },
-                    transform: Transform::from_xyz(0.,0.,10.),
-                    ..default()
-                }
-            )).insert(Item::default()).id();
+                    }
+                )).insert(Item::default()).id();
 
-            container.add_item(item);
+                container.add_item(item);
+            }
         }
         else{
             producer.timer += 1;

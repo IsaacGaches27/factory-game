@@ -6,7 +6,7 @@ use crate::item::Item;
 #[derive(Component,Default)]
 pub struct ConveyorLogic{
     pub incoming: Option<Entity>,
-    pub timer: u16,
+    pub timer: u8,
 }
 
 #[derive(Component)]

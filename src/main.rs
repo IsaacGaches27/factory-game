@@ -5,7 +5,8 @@ mod build;
 mod terrain;
 mod producer;
 mod camera;
-mod storage;
+mod processor;
+mod item_input;
 
 use bevy::prelude::*;
 use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
