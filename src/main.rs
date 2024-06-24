@@ -15,6 +15,7 @@ use bevy_ecs_tilemap::prelude::*;
 use crate::build::BuildPlugin;
 use crate::camera::CameraPlugin;
 use crate::conveyor::ConveyorPlugin;
+use crate::processor::ProcessorPlugin;
 use crate::producer::ProducerPlugin;
 use crate::terrain::WorldPlugin;
 
@@ -33,6 +34,7 @@ fn main() {
         .add_plugins(FrameTimeDiagnosticsPlugin::default())
         .add_plugins(LogDiagnosticsPlugin::default())
         .add_plugins(BuildPlugin)
+        .add_plugins(ProcessorPlugin)
         .add_plugins(WorldPlugin)
         .add_plugins(ConveyorPlugin)
         .add_plugins(TilemapPlugin)

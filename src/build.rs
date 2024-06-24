@@ -5,6 +5,7 @@ use crate::terrain::Terrain;
 use bevy::window::PrimaryWindow;
 use crate::container::ItemContainer;
 use crate::conveyor::{ConveyorLogic, TailConveyor};
+use crate::processor::Processor;
 use crate::producer::Producer;
 
 fn place_conveyors(
@@ -32,7 +33,7 @@ fn place_conveyors(
                 return;
             }
 
-            let mut conveyor_logic = ConveyorLogic::default();
+            let mut adj_entity = None;
             let mut direction = (0,0);
 
             'outer: for x in 0..3{
@@ -41,7 +42,7 @@ fn place_conveyors(
                     if let Some(adj) = tilemap.get(&TilePos{x:tile_pos.x + x - 1,y:tile_pos.y + y - 1}){
                         if tails.contains(adj){
                             commands.entity(adj).remove::<TailConveyor>();
-                            conveyor_logic.incoming = Some(adj);
+                            adj_entity = Some(adj);
                             direction = (x,y);
                             break 'outer;
                         }
@@ -66,7 +67,7 @@ fn place_conveyors(
                             texture_index: TileTextureIndex(16),
                             ..Default::default()
                         })
-                        .insert((ItemContainer::new(10),Producer{ timer: 0 },conveyor_logic,TailConveyor()))
+                        .insert((ItemContainer::new(10), Producer{ timer: 0 }, ConveyorLogic{ incoming: adj_entity, timer: 0 }, TailConveyor()))
                         .id()
                 }
                 else{
@@ -77,7 +78,11 @@ fn place_conveyors(
                             texture_index: TileTextureIndex(17),
                             ..Default::default()
                         })
-                        .insert((conveyor_logic,ItemContainer::new(10),TailConveyor()))
+                        .insert((ConveyorLogic{ incoming: adj_entity, timer: 0 },ItemContainer::new(10),TailConveyor(),Processor{
+                            inputs: if let Some(entity) = adj_entity { vec![entity] } else { vec![] },
+                            required_input_quantities: vec![1],
+                            output_item_id: 0,
+                        }))
                         .id()
                 }
             }
@@ -89,7 +94,7 @@ fn place_conveyors(
                         texture_index: TileTextureIndex(index),
                         ..Default::default()
                     })
-                    .insert((conveyor_logic,ItemContainer::new(1),TailConveyor()))
+                    .insert((ConveyorLogic{ incoming: adj_entity, timer: 0 },ItemContainer::new(1),TailConveyor()))
                     .id()
             };
 

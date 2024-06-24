@@ -15,6 +15,7 @@ fn update_processors(
     mut items: Query<&mut Item>,
 ){
     for mut processor in &mut processors{
+        if processor.inputs.len() == 0 {continue}
         let mut can_produce = true;
         processor.inputs.iter().zip(processor.required_input_quantities.iter()).for_each(|(input_entity,quantity)|{
             let input = item_inputs.get(*input_entity).unwrap();
@@ -23,7 +24,17 @@ fn update_processors(
             }
         });
 
-        
+        if can_produce{
+            println!("a");
+        }
+    }
+}
+
+pub struct ProcessorPlugin;
+
+impl Plugin for ProcessorPlugin{
+    fn build(&self, app: &mut App) {
+        app.add_systems(Update,update_processors);
     }
 }
 
