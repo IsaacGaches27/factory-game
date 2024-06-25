@@ -5,6 +5,7 @@ use crate::terrain::Terrain;
 use bevy::window::PrimaryWindow;
 use crate::container::ItemContainer;
 use crate::conveyor::{ConveyorLogic, TailConveyor};
+use crate::item_input::ItemInput;
 use crate::processor::Processor;
 use crate::producer::Producer;
 
@@ -41,7 +42,7 @@ fn place_conveyors(
                     if (x+y) % 2 == 0 {continue;}
                     if let Some(adj) = tilemap.get(&TilePos{x:tile_pos.x + x - 1,y:tile_pos.y + y - 1}){
                         if tails.contains(adj){
-                            commands.entity(adj).remove::<TailConveyor>();
+                            if buttons.pressed(MouseButton::Left) { commands.entity(adj).remove::<TailConveyor>(); }
                             adj_entity = Some(adj);
                             direction = (x,y);
                             break 'outer;
@@ -60,7 +61,7 @@ fn place_conveyors(
 
             let tile_entity = if buttons.pressed(MouseButton::Right) {
                 if tiles.get(terrain.single().get(&tile_pos).unwrap()).unwrap().0 == 7{
-                    commands
+                    vec![commands
                         .spawn(TileBundle {
                             position: tile_pos,
                             tilemap_id: TilemapId(tilemap_entity),
@@ -68,26 +69,54 @@ fn place_conveyors(
                             ..Default::default()
                         })
                         .insert((ItemContainer::new(10), Producer{ timer: 0 }, ConveyorLogic{ incoming: adj_entity, timer: 0 }, TailConveyor()))
-                        .id()
+                        .id()]
                 }
                 else{
-                    commands
+                    let a = commands
                         .spawn(TileBundle {
                             position: tile_pos,
                             tilemap_id: TilemapId(tilemap_entity),
                             texture_index: TileTextureIndex(17),
                             ..Default::default()
                         })
-                        .insert((ConveyorLogic{ incoming: adj_entity, timer: 0 },ItemContainer::new(10),TailConveyor(),Processor{
-                            inputs: if let Some(entity) = adj_entity { vec![entity] } else { vec![] },
+                        .insert((ItemContainer::new(10),ItemInput {
+                            incoming: adj_entity,
+                            allowed_item_id: 0,
+                        }))
+                        .id();
+                    vec![ commands
+                        .spawn(TileBundle {
+                            position: TilePos{x:tile_pos.x,y:tile_pos.y+1},
+                            tilemap_id: TilemapId(tilemap_entity),
+                            texture_index: TileTextureIndex(17),
+                            ..Default::default()
+                        })
+                        .insert(( Processor{
+                            inputs: vec![a],
                             required_input_quantities: vec![1],
                             output_item_id: 0,
                         }))
-                        .id()
+                        .id(),
+                      a,
+                      commands
+                          .spawn(TileBundle {
+                              position: TilePos{x:tile_pos.x+1,y:tile_pos.y},
+                              tilemap_id: TilemapId(tilemap_entity),
+                              texture_index: TileTextureIndex(17),
+                              ..Default::default()
+                          }).id(),
+                      commands
+                          .spawn(TileBundle {
+                              position: TilePos{x:tile_pos.x+1,y:tile_pos.y+1},
+                              tilemap_id: TilemapId(tilemap_entity),
+                              texture_index: TileTextureIndex(17),
+                              ..Default::default()
+                          }).id()
+                    ]
                 }
             }
             else{
-                commands
+                vec![commands
                     .spawn(TileBundle {
                         position: tile_pos,
                         tilemap_id: TilemapId(tilemap_entity),
@@ -95,10 +124,16 @@ fn place_conveyors(
                         ..Default::default()
                     })
                     .insert((ConveyorLogic{ incoming: adj_entity, timer: 0 },ItemContainer::new(1),TailConveyor()))
-                    .id()
+                    .id()]
             };
 
-            tilemap.set(&tile_pos,tile_entity);
+            let n = tile_entity.len();
+            let w = (n as f32).sqrt() as u32;
+            for x in 0..w{
+                for y in 0..w{
+                    tilemap.set(&TilePos{x:tile_pos.x+x,y:tile_pos.y+y},tile_entity[(x+y) as usize]);
+                }
+            }
         }
     }
 }

@@ -37,7 +37,7 @@ fn update_conveyor(
 
     let incoming = conveyor.incoming?;
 
-    if container.empty() && !container.blocked(){
+    if !container.full() && !container.blocked(){
         let (_,mut in_container,_) = conveyors.get_mut(incoming).unwrap();
 
         if let Some(item) = in_container.take(){

@@ -27,7 +27,7 @@ fn update_producers(
                     SpriteSheetBundle {
                         texture_atlas,
                         sprite: TextureAtlasSprite {
-                            index: 1,
+                            index: 0,
                             ..default()
                         },
                         transform: Transform::from_xyz(0., 0., 10.),

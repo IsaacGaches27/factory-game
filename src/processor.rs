@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use crate::container::ItemContainer;
 use crate::item::Item;
+use crate::item_input::ItemInput;
 
 #[derive(Component)]
 pub struct Processor{
@@ -11,7 +12,7 @@ pub struct Processor{
 
 fn update_processors(
     mut processors: Query<&mut Processor>,
-    mut item_inputs: Query<&mut ItemContainer>,
+    mut item_inputs: Query<&mut ItemContainer,With<ItemInput>>,
     mut items: Query<&mut Item>,
 ){
     for mut processor in &mut processors{
